@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Logs & OS files
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Backup and temporary files
+*.bak*
+scratch/
+database.sqlite
+backend/goldflow.sqlite
+found_app.json
+found_dump.txt
+recovered_app.js
+public/js/append*.js
+
+# Temporary one-off patch scripts
+add_*.js
+alter_table.js
+bind_search.js
+cache_bust.js
+cart_qty_controls.js
+check_*.js
+convert_jewellery_cards.js
+dynamic_stock.js
+estimate_dark.js
+find_complete.js
+fix_*.js
+force_*.js
+get_sales_row.js
+group_cart.js
+group_invoice_items.js
+inject_cart_est.js
+make_responsive.js
+modern_invoice.js
+move_endpoints.js
+redesign_estimate.js
+remove_*.js
+replace_*.js
+restore_*.js
+search_dashboard.js
+update_*.js

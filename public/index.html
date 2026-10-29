@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GoldFlow - Jewellery ERP & POS</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+    :root {
+        --primary-color: #B45309;
+        --secondary-color: #F59E0B;
+        --gold-bright: #FBBF24;
+        --gold-dark: #78350F;
+        --gold-accent: #D4AF37;
+        --black: #000000;
+        --white: #ffffff;
+        --gray: #f8fafc;
+        --gray-2: #64748b;
+    }
+
+    * {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        height: 100vh;
+        overflow: hidden;
+        background-color: #ffffff;
+    }
+
+    .container {
+        position: relative;
+        min-height: 100vh;
+        overflow: hidden;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        height: 100vh;
+    }
+
+    .col {
+        width: 50%;
+    }
+
+    .align-items-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .form-wrapper {
+        width: 100%;
+        max-width: 28rem;
+    }
+
+    .form {
+        padding: 2.2rem 2.5rem;
+        background-color: var(--white);
+        border-radius: 1.5rem;
+        width: 100%;
+        box-shadow: 0 20px 45px -10px rgba(180, 83, 9, 0.22), 0 0 0 1px rgba(217, 119, 6, 0.15), rgba(0, 0, 0, 0.08) 0px 5px 15px;
+        transform: scale(0);
+        transition: .5s ease-in-out;
+        transition-delay: 1s;
+    }
+
+    .input-group {
+        position: relative;
+        width: 100%;
+        margin: 1.15rem 0;
+    }
+
+    .input-group i {
+        position: absolute;
+        top: 50%;
+        left: 1.15rem;
+        transform: translateY(-50%);
+        font-size: 1.35rem;
+        color: #94a3b8;
+        transition: color 0.25s ease;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 0.95rem 1.1rem 0.95rem 3.2rem;
+        font-size: 0.95rem;
+        background-color: #f8fafc;
+        border-radius: 0.75rem;
+        border: 1.5px solid #e2e8f0;
+        outline: none;
+        transition: all 0.25s ease;
+        color: #1e293b;
+    }
+
+    .input-group input:focus {
+        border-color: #d97706;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.15);
+    }
+
+    .input-group:focus-within i {
+        color: #d97706;
+    }
+
+    .form button {
+        cursor: pointer;
+        width: 100%;
+        padding: 0.85rem 0;
+        border-radius: 0.75rem;
+        border: none;
+        background: linear-gradient(135deg, #b45309 0%, #d97706 45%, #f59e0b 100%);
+        color: var(--white);
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        outline: none;
+        box-shadow: 0 6px 18px rgba(180, 83, 9, 0.35);
+        transition: all 0.25s ease;
+        margin-top: 0.4rem;
+    }
+
+    .form button:hover {
+        background: linear-gradient(135deg, #92400e 0%, #b45309 45%, #d97706 100%);
+        box-shadow: 0 8px 25px rgba(180, 83, 9, 0.45);
+        transform: translateY(-1px);
+    }
+
+    .form button:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(180, 83, 9, 0.3);
+    }
+
+    .form p {
+        margin: 1.1rem 0 0.4rem 0;
+        font-size: 0.82rem;
+        color: #64748b;
+    }
+
+    .form p b {
+        color: #b45309;
+        font-weight: 700;
+        transition: color 0.2s;
+    }
+
+    .form p b:hover {
+        color: #d97706;
+        text-decoration: underline;
+    }
+
+    .flex-col {
+        flex-direction: column;
+    }
+
+    .pointer {
+        cursor: pointer;
+    }
+
+    .container.sign-in .form.sign-in,
+    .container.sign-up .form.sign-up {
+        transform: scale(1);
+    }
+
+    .content-row {
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 6;
+        width: 100%;
+    }
+
+    .text {
+        margin: 4rem;
+        color: var(--white);
+    }
+
+    .text h2 {
+        font-family: 'Cinzel', 'Poppins', serif;
+        font-size: 3.8rem;
+        font-weight: 800;
+        margin: 1.2rem 0 0.6rem 0;
+        letter-spacing: 1.5px;
+        transition: 1s ease-in-out;
+        text-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    }
+
+    .text p {
+        font-weight: 500;
+        font-size: 1.05rem;
+        letter-spacing: 0.3px;
+        opacity: 0.95;
+        transition: 1s ease-in-out;
+        transition-delay: .2s;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .text.sign-in h2,
+    .text.sign-in p,
+    .text.sign-in .brand-tag {
+        transform: translateX(-250%);
+    }
+
+    .text.sign-up h2,
+    .text.sign-up p,
+    .text.sign-up .brand-tag {
+        transform: translateX(250%);
+    }
+
+    .container.sign-in .text.sign-in h2,
+    .container.sign-in .text.sign-in p,
+    .container.sign-in .text.sign-in .brand-tag,
+    .container.sign-up .text.sign-up h2,
+    .container.sign-up .text.sign-up p,
+    .container.sign-up .text.sign-up .brand-tag {
+        transform: translateX(0);
+    }
+
+    .brand-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 18px;
+        border-radius: 9999px;
+        background: rgba(0, 0, 0, 0.22);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transition: 1s ease-in-out;
+    }
+
+    /* BACKGROUND */
+    .container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100vh;
+        width: 300vw;
+        transform: translate(35%, 0);
+        background-image: linear-gradient(-45deg, #78350f 0%, #92400e 20%, #b45309 45%, #d97706 75%, #f59e0b 100%);
+        transition: 1s ease-in-out;
+        z-index: 6;
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 25px;
+        border-bottom-right-radius: max(50vw, 50vh);
+        border-top-left-radius: max(50vw, 50vh);
+    }
+
+    .container.sign-in::before {
+        transform: translate(0, 0);
+        right: 50%;
+    }
+
+    .container.sign-up::before {
+        transform: translate(100%, 0);
+        right: 50%;
+    }
+
+    /* RESPONSIVE */
+    @media only screen and (max-width: 768px) {
+        body { overflow: auto; }
+        .container { overflow: auto; }
+        
+        .container::before,
+        .container.sign-in::before,
+        .container.sign-up::before {
+            height: 100vh;
+            border-bottom-right-radius: 0;
+            border-top-left-radius: 0;
+            z-index: 0;
+            transform: none;
+            right: 0;
+        }
+
+        .container.sign-in .col.sign-in,
+        .container.sign-up .col.sign-up {
+            transform: translateY(0);
+        }
+
+        .content-row {
+            align-items: flex-start !important;
+        }
+
+        .content-row .col {
+            transform: translateY(0);
+            background-color: unset;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: auto;
+            width: 100%;
+        }
+
+        .col {
+            width: 100%;
+            position: absolute;
+            padding: 2rem;
+            background-color: var(--white);
+            border-top-left-radius: 2rem;
+            border-top-right-radius: 2rem;
+            transform: translateY(100%);
+            transition: 1s ease-in-out;
+            bottom: 0;
+        }
+
+        .row {
+            align-items: flex-end;
+            justify-content: flex-end;
+        }
+
+        .form {
+            box-shadow: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .text {
+            margin: 0;
+            margin-top: 10vh;
+        }
+
+        .text p {
+            display: none;
+        }
+
+        .text h2 {
+            margin: .5rem;
+            font-size: 2.5rem;
+        }
+    }
+    </style>
+</head>
+<body>
+
+<div id="container" class="container sign-in">
+    <!-- FORM SECTION -->
+    <div class="row">
+        <!-- SIGN UP -->
+        <div class="col align-items-center flex-col sign-up">
+            <div class="form-wrapper align-items-center">
+                <form class="form sign-up" id="registerForm">
+                    <div style="text-align: center; margin-bottom: 1.25rem;">
+                        <div style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1.5px solid #d97706; margin-bottom: 0.35rem; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);">
+                            <span style="font-size: 24px;">👑</span>
+                        </div>
+                        <h3 style="font-size: 1.35rem; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px;">Gold<span style="color: #d97706;">Flow</span></h3>
+                        <p style="font-size: 0.75rem; color: #64748b; margin: 0.2rem 0 0 0; font-weight: 500;">Create Business Account</p>
+                    </div>
+                    <div class="input-group">
+                        <i class='bx bxs-user'></i>
+                        <input type="text" id="r_username" placeholder="Username" required>
+                    </div>
+                    <div class="input-group">
+                        <i class='bx bx-mail-send'></i>
+                        <input type="email" id="r_email" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <i class='bx bxs-lock-alt'></i>
+                        <input type="password" id="r_password" placeholder="Password" required>
+                    </div>
+                    <button type="submit">
+                        Sign up
+                    </button>
+                    <p>
+                        <span>Already have an account?</span>
+                        <b onclick="toggle()" class="pointer">Sign in here</b>
+                    </p>
+                </form>
+            </div>
+        </div>
+        <!-- END SIGN UP -->
+        <!-- SIGN IN -->
+        <div class="col align-items-center flex-col sign-in">
+            <div class="form-wrapper align-items-center">
+                <form class="form sign-in" id="loginForm">
+                    <div style="text-align: center; margin-bottom: 1.25rem;">
+                        <div style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1.5px solid #d97706; margin-bottom: 0.35rem; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);">
+                            <span style="font-size: 24px;">👑</span>
+                        </div>
+                        <h3 style="font-size: 1.35rem; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px;">Gold<span style="color: #d97706;">Flow</span></h3>
+                        <p style="font-size: 0.75rem; color: #64748b; margin: 0.2rem 0 0 0; font-weight: 500;">Jewellery ERP & POS Management</p>
+                    </div>
+                    <div class="input-group">
+                        <i class='bx bxs-user'></i>
+                        <input type="text" id="username" placeholder="Username" required>
+                    </div>
+                    <div class="input-group">
+                        <i class='bx bxs-lock-alt'></i>
+                        <input type="password" id="password" placeholder="Password" required>
+                    </div>
+                    
+                    <!-- Quick Role Selection Chips -->
+                    <div style="margin: 0.6rem 0 1rem; text-align: left;">
+                        <span style="font-size: 0.68rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 0.35rem;">Quick Role Logins:</span>
+                        <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                            <button type="button" onclick="fillCreds('cashier','cashier123')" style="padding: 4px 9px; font-size: 11px; font-weight: 700; border-radius: 6px; border: 1.5px solid #059669; background: #d1fae5; color: #065f46; cursor: pointer; display: flex; items-center; gap: 3px;" title="Cash Counter, Bill Completion & Dues">💵 Cashier</button>
+                            <button type="button" onclick="fillCreds('owner','password123')" style="padding: 4px 9px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid #d97706; background: #fef3c7; color: #78350f; cursor: pointer;" title="Owner Panel">👑 Owner</button>
+                            <button type="button" onclick="fillCreds('seller1','password123')" style="padding: 4px 9px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid #0284c7; background: #e0f2fe; color: #0369a1; cursor: pointer;" title="Seller POS">🛒 Seller</button>
+                            <button type="button" onclick="fillCreds('admin','password123')" style="padding: 4px 9px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid #64748b; background: #f1f5f9; color: #334155; cursor: pointer;" title="Admin">⚙️ Admin</button>
+                        </div>
+                    </div>
+
+                    <button type="submit">
+                        Sign in
+                    </button>
+                    <div id="errorMsg" style="color: #dc2626; font-size: 12px; margin-top: 10px; display: none; background: #fee2e2; padding: 6px 12px; border-radius: 6px; border: 1px solid #fca5a5;"></div>
+                    <p>
+                        <b>Forgot password?</b>
+                    </p>
+                    <p>
+                        <span>Don't have an account?</span>
+                        <b onclick="toggle()" class="pointer">Sign up here</b>
+                    </p>
+                </form>
+            </div>
+        </div>
+        <!-- END SIGN IN -->
+    </div>
+    <!-- END FORM SECTION -->
+    <!-- CONTENT SECTION -->
+    <div class="row content-row">
+        <!-- SIGN IN CONTENT -->
+        <div class="col align-items-center flex-col">
+            <div class="text sign-in">
+                <div class="brand-tag">
+                    <span>✦</span> GOLDFLOW ERP <span>✦</span>
+                </div>
+                <h2>Welcome</h2>
+                <p>Sign in to access GoldFlow Jewellery Dashboard</p>
+            </div>
+        </div>
+        <!-- END SIGN IN CONTENT -->
+        <!-- SIGN UP CONTENT -->
+        <div class="col align-items-center flex-col">
+            <div class="text sign-up">
+                <div class="brand-tag">
+                    <span>✦</span> GOLDFLOW ERP <span>✦</span>
+                </div>
+                <h2>Join with us</h2>
+                <p>Register to manage your jewellery business</p>
+            </div>
+        </div>
+        <!-- END SIGN UP CONTENT -->
+    </div>
+    <!-- END CONTENT SECTION -->
+</div>
+
+<script>
+    let container = document.getElementById('container');
+
+    const toggle = () => {
+        container.classList.toggle('sign-in');
+        container.classList.toggle('sign-up');
+    };
+
+    window.fillCreds = function(u, p) {
+        document.getElementById('username').value = u;
+        document.getElementById('password').value = p;
+        const err = document.getElementById('errorMsg');
+        if (err) err.style.display = 'none';
+    };
+
+    // Ensure seed is run so users exist
+    fetch('/api/auth/seed', {method:'POST'}).catch(e=>console.log(e));
+
+    // API Integration for Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      const err = document.getElementById('errorMsg');
+      err.style.display = 'none';
+      
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({username: u, password: p})
+        });
+        const data = await res.json();
+        
+        if (res.ok) {
+          sessionStorage.setItem('token', data.token);
+          sessionStorage.setItem('user', JSON.stringify(data.user));
+          window.location.href = '/dashboard.html';
+        } else {
+          err.innerText = data.message;
+          err.style.display = 'block';
+        }
+      } catch (error) {
+        err.innerText = "Connection error.";
+        err.style.display = 'block';
+      }
+    });
+
+    // Register handling (mocking alert for now since dashboard handles staff creation)
+    document.getElementById('registerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Sign up not fully integrated in demo. Use Sign in.');
+    });
+</script>
+
+</body>
+</html>

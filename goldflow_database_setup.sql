@@ -1,0 +1,369 @@
+-- =======================================================================
+-- GOLDFLOW JEWELLERY SHOP ERP & POS SOFTWARE - DATABASE SETUP & DEMO DATA
+-- =======================================================================
+-- See also: demo_database.sql and goldflow_workbench_all_tables.sql
+--
+-- DEMO LOGIN CREDENTIALS:
+-- 1. Admin   : username = admin   | password = password123
+-- 2. Owner   : username = owner   | password = password123
+-- 3. Seller  : username = seller1 | password = password123
+-- 4. Cashier : username = cashier | password = cashier123
+-- =======================================================================
+
+CREATE DATABASE IF NOT EXISTS goldflow;
+USE goldflow;
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS InvoiceSequences;
+DROP TABLE IF EXISTS Settings;
+DROP TABLE IF EXISTS Notifications;
+DROP TABLE IF EXISTS AuditLogs;
+DROP TABLE IF EXISTS Expenses;
+DROP TABLE IF EXISTS GoldExchanges;
+DROP TABLE IF EXISTS SalesReturnItems;
+DROP TABLE IF EXISTS SalesReturns;
+DROP TABLE IF EXISTS AdvancePayments;
+DROP TABLE IF EXISTS Payments;
+DROP TABLE IF EXISTS PurchaseItems;
+DROP TABLE IF EXISTS Purchases;
+DROP TABLE IF EXISTS Suppliers;
+DROP TABLE IF EXISTS GoldRates;
+DROP TABLE IF EXISTS DiscountRequests;
+DROP TABLE IF EXISTS SaleItems;
+DROP TABLE IF EXISTS Sales;
+DROP TABLE IF EXISTS Customers;
+DROP TABLE IF EXISTS Jewelleries;
+DROP TABLE IF EXISTS Users;
+
+CREATE TABLE Users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    raw_password VARCHAR(255) DEFAULT NULL,
+    role ENUM('ADMIN', 'OWNER', 'SELLER', 'CASHIER') NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Suppliers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    phone VARCHAR(255) NOT NULL,
+    email VARCHAR(255) DEFAULT NULL,
+    address TEXT DEFAULT NULL,
+    gst_number VARCHAR(255) DEFAULT NULL,
+    bank_details TEXT DEFAULT NULL,
+    opening_balance FLOAT DEFAULT 0,
+    total_purchases FLOAT DEFAULT 0,
+    outstanding_balance FLOAT DEFAULT 0,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Jewelleries (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(255) NOT NULL UNIQUE,
+    barcode VARCHAR(255) DEFAULT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    category VARCHAR(255) NOT NULL,
+    subcategory VARCHAR(255) DEFAULT 'Standard',
+    metal VARCHAR(255) NOT NULL DEFAULT 'Gold',
+    purity VARCHAR(255) NOT NULL DEFAULT '22K',
+    weight FLOAT NOT NULL,
+    gross_weight FLOAT DEFAULT 0,
+    stone_weight FLOAT DEFAULT 0,
+    net_weight FLOAT DEFAULT 0,
+    making_charge FLOAT NOT NULL DEFAULT 0,
+    making_charge_type ENUM('PERCENTAGE', 'PER_GRAM', 'FIXED') DEFAULT 'PERCENTAGE',
+    wastage_percent FLOAT DEFAULT 0,
+    stone_charge FLOAT DEFAULT 0,
+    other_charges FLOAT DEFAULT 0,
+    purchase_cost FLOAT DEFAULT 0,
+    base_price FLOAT NOT NULL DEFAULT 0,
+    selling_price FLOAT NOT NULL DEFAULT 0,
+    stock INT NOT NULL DEFAULT 1,
+    min_stock INT DEFAULT 1,
+    supplier_id INT DEFAULT NULL,
+    status ENUM('AVAILABLE', 'RESERVED', 'SOLD', 'LOW_STOCK', 'OUT_OF_STOCK', 'INACTIVE') DEFAULT 'AVAILABLE',
+    image_url VARCHAR(255) DEFAULT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (supplier_id) REFERENCES Suppliers(id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE Customers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    phone VARCHAR(255) NOT NULL,
+    email VARCHAR(255) DEFAULT NULL,
+    address TEXT DEFAULT NULL,
+    dob DATE DEFAULT NULL,
+    notes TEXT DEFAULT NULL,
+    total_purchases FLOAT DEFAULT 0,
+    outstanding_balance FLOAT DEFAULT 0,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Sales (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    invoice_no VARCHAR(255) DEFAULT NULL UNIQUE,
+    total_amount FLOAT NOT NULL,
+    gross_amount FLOAT DEFAULT 0,
+    discount_amount FLOAT DEFAULT 0,
+    tax_amount FLOAT DEFAULT 0,
+    tax_percent FLOAT DEFAULT 3,
+    round_off FLOAT DEFAULT 0,
+    final_amount FLOAT NOT NULL,
+    paid_amount FLOAT DEFAULT 0,
+    balance_amount FLOAT DEFAULT 0,
+    status ENUM('PENDING_APPROVAL', 'APPROVED', 'MODIFIED', 'REJECTED', 'COMPLETED', 'CANCELLED') DEFAULT 'COMPLETED',
+    payment_status ENUM('PAID', 'PARTIALLY_PAID', 'PENDING', 'REFUNDED') DEFAULT 'PAID',
+    payment_method ENUM('CASH', 'UPI', 'CARD', 'BANK_TRANSFER', 'SPLIT', 'OTHER') DEFAULT NULL,
+    seller_id INT DEFAULT NULL,
+    customer_id INT DEFAULT NULL,
+    notes TEXT DEFAULT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (seller_id) REFERENCES Users(id) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES Customers(id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE SaleItems (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    quantity INT DEFAULT 1,
+    gross_weight FLOAT DEFAULT 0,
+    stone_weight FLOAT DEFAULT 0,
+    net_weight FLOAT DEFAULT 0,
+    purity VARCHAR(255) DEFAULT '22K',
+    gold_rate FLOAT DEFAULT 0,
+    gold_value FLOAT DEFAULT 0,
+    making_charge FLOAT DEFAULT 0,
+    wastage_amount FLOAT DEFAULT 0,
+    stone_charge FLOAT DEFAULT 0,
+    other_charges FLOAT DEFAULT 0,
+    discount_amount FLOAT DEFAULT 0,
+    tax_amount FLOAT DEFAULT 0,
+    price FLOAT NOT NULL,
+    final_amount FLOAT DEFAULT 0,
+    sale_id INT DEFAULT NULL,
+    jewellery_id INT DEFAULT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (sale_id) REFERENCES Sales(id) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (jewellery_id) REFERENCES Jewelleries(id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE DiscountRequests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    requested_discount_percent FLOAT NOT NULL,
+    status ENUM('PENDING', 'APPROVED', 'REJECTED', 'MODIFIED') DEFAULT 'PENDING',
+    modified_discount_percent FLOAT DEFAULT NULL,
+    reason TEXT DEFAULT NULL,
+    sale_id INT DEFAULT NULL,
+    seller_id INT DEFAULT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (sale_id) REFERENCES Sales(id) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (seller_id) REFERENCES Users(id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE GoldRates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    metal ENUM('GOLD', 'SILVER', 'PLATINUM') DEFAULT 'GOLD',
+    purity VARCHAR(255) NOT NULL,
+    rate_per_gram FLOAT NOT NULL,
+    previous_rate FLOAT DEFAULT 0,
+    updated_by INT DEFAULT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Purchases (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    purchase_invoice_no VARCHAR(255) NOT NULL,
+    supplier_id INT NOT NULL,
+    date DATE DEFAULT NULL,
+    total_amount FLOAT NOT NULL DEFAULT 0,
+    paid_amount FLOAT DEFAULT 0,
+    payment_status ENUM('PAID', 'PARTIALLY_PAID', 'PENDING') DEFAULT 'PAID',
+    notes TEXT DEFAULT NULL,
+    created_by INT DEFAULT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (supplier_id) REFERENCES Suppliers(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE PurchaseItems (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    purchase_id INT NOT NULL,
+    jewellery_id INT DEFAULT NULL,
+    metal VARCHAR(255) DEFAULT 'Gold',
+    purity VARCHAR(255) DEFAULT '22K',
+    gross_weight FLOAT DEFAULT 0,
+    stone_weight FLOAT DEFAULT 0,
+    net_weight FLOAT DEFAULT 0,
+    rate FLOAT DEFAULT 0,
+    making_charge FLOAT DEFAULT 0,
+    purchase_cost FLOAT NOT NULL DEFAULT 0,
+    quantity INT DEFAULT 1,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (purchase_id) REFERENCES Purchases(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (jewellery_id) REFERENCES Jewelleries(id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE Payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sale_id INT DEFAULT NULL,
+    customer_id INT DEFAULT NULL,
+    amount FLOAT NOT NULL,
+    payment_method ENUM('CASH', 'UPI', 'CARD', 'BANK_TRANSFER', 'OTHER') DEFAULT 'CASH',
+    reference_no VARCHAR(255) DEFAULT NULL,
+    payment_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('SUCCESS', 'PENDING', 'REFUNDED') DEFAULT 'SUCCESS',
+    notes VARCHAR(255) DEFAULT NULL,
+    recorded_by INT DEFAULT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (sale_id) REFERENCES Sales(id) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES Customers(id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE AdvancePayments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT NOT NULL,
+    order_ref VARCHAR(255) DEFAULT NULL,
+    advance_amount FLOAT NOT NULL,
+    payment_method ENUM('CASH', 'UPI', 'CARD', 'BANK_TRANSFER', 'OTHER') DEFAULT 'CASH',
+    total_order_amount FLOAT DEFAULT 0,
+    balance_amount FLOAT DEFAULT 0,
+    status ENUM('ACTIVE', 'ADJUSTED', 'CANCELLED') DEFAULT 'ACTIVE',
+    notes TEXT DEFAULT NULL,
+    recorded_by INT DEFAULT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES Customers(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE SalesReturns (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    return_invoice_no VARCHAR(255) NOT NULL UNIQUE,
+    sale_id INT NOT NULL,
+    customer_id INT DEFAULT NULL,
+    total_refund_amount FLOAT NOT NULL,
+    reason TEXT DEFAULT NULL,
+    status ENUM('COMPLETED', 'PENDING') DEFAULT 'COMPLETED',
+    processed_by INT DEFAULT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (sale_id) REFERENCES Sales(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES Customers(id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE SalesReturnItems (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    return_id INT NOT NULL,
+    sale_item_id INT DEFAULT NULL,
+    jewellery_id INT NOT NULL,
+    quantity INT DEFAULT 1,
+    refund_amount FLOAT NOT NULL,
+    return_reason VARCHAR(255) DEFAULT NULL,
+    `condition` VARCHAR(255) DEFAULT 'Good',
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (return_id) REFERENCES SalesReturns(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (jewellery_id) REFERENCES Jewelleries(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE GoldExchanges (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    exchange_no VARCHAR(255) NOT NULL UNIQUE,
+    sale_id INT DEFAULT NULL,
+    customer_id INT DEFAULT NULL,
+    old_metal VARCHAR(255) DEFAULT 'Gold',
+    old_purity VARCHAR(255) DEFAULT '22K',
+    old_gross_weight FLOAT DEFAULT 0,
+    old_stone_weight FLOAT DEFAULT 0,
+    old_net_weight FLOAT DEFAULT 0,
+    old_rate FLOAT DEFAULT 0,
+    deduction_percent FLOAT DEFAULT 0,
+    old_gold_value FLOAT DEFAULT 0,
+    new_jewellery_value FLOAT DEFAULT 0,
+    amount_difference FLOAT DEFAULT 0,
+    notes TEXT DEFAULT NULL,
+    created_by INT DEFAULT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (sale_id) REFERENCES Sales(id) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES Customers(id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE Expenses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    category ENUM('RENT', 'ELECTRICITY', 'SALARY', 'TRANSPORT', 'MAINTENANCE', 'MARKETING', 'OFFICE', 'OTHER') DEFAULT 'OTHER',
+    amount FLOAT NOT NULL,
+    description TEXT DEFAULT NULL,
+    payment_method ENUM('CASH', 'UPI', 'CARD', 'BANK_TRANSFER', 'OTHER') DEFAULT 'CASH',
+    `date` DATE DEFAULT NULL,
+    created_by INT DEFAULT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES Users(id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE AuditLogs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(255) NOT NULL,
+    module VARCHAR(255) NOT NULL,
+    details TEXT DEFAULT NULL,
+    previous_value TEXT DEFAULT NULL,
+    new_value TEXT DEFAULT NULL,
+    user_id INT DEFAULT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE Notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    message VARCHAR(255) NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    type VARCHAR(255) NOT NULL,
+    metadata TEXT DEFAULT NULL,
+    user_id INT DEFAULT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE Settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    `key` VARCHAR(255) NOT NULL UNIQUE,
+    `value` TEXT NOT NULL,
+    description VARCHAR(255) DEFAULT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE InvoiceSequences (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    `year` INT NOT NULL,
+    prefix VARCHAR(255) DEFAULT 'GF',
+    last_number INT DEFAULT 0,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Seed Demo Users
+INSERT INTO Users (id, username, password_hash, raw_password, role, name, createdAt, updatedAt) VALUES
+(1, 'admin', '$2b$10$vffVgtRqnYjeWzK9XhTHsOBL.2a2iFUU93xLWVhw8CGro7MMiWxbi', 'password123', 'ADMIN', 'System Admin', NOW(), NOW()),
+(2, 'owner', '$2b$10$vffVgtRqnYjeWzK9XhTHsOBL.2a2iFUU93xLWVhw8CGro7MMiWxbi', 'password123', 'OWNER', 'Rajesh Kumar (Owner)', NOW(), NOW()),
+(3, 'seller1', '$2b$10$vffVgtRqnYjeWzK9XhTHsOBL.2a2iFUU93xLWVhw8CGro7MMiWxbi', 'password123', 'SELLER', 'Rahul Sharma (Seller 1)', NOW(), NOW()),
+(4, 'seller2', '$2b$10$vffVgtRqnYjeWzK9XhTHsOBL.2a2iFUU93xLWVhw8CGro7MMiWxbi', 'password123', 'SELLER', 'Priya Patel (Seller 2)', NOW(), NOW()),
+(5, 'seller3', '$2b$10$vffVgtRqnYjeWzK9XhTHsOBL.2a2iFUU93xLWVhw8CGro7MMiWxbi', 'password123', 'SELLER', 'Amit Verma (Seller 3)', NOW(), NOW()),
+(6, 'cashier', '$2b$10$7L7RkPzLq7Zko3O.evwYx.pFaKJ0A0CHtusGxdudniY7WYna8gjZ.', 'cashier123', 'CASHIER', 'Karthik Nair (Cashier)', NOW(), NOW());
+
+SET FOREIGN_KEY_CHECKS = 1;
