@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=120&section=header" width="100%" />
-
 # 👑 GOLDFLOW — JEWELLERY SHOP SOFTWARE
 
 ### Weigh • Scan • Bill • Manage
@@ -147,10 +145,16 @@ https://github.com/J-egathis
 
 <br>
 
+![24K Gold](https://img.shields.io/badge/24K%20PURE%20GOLD-F59E0B?style=for-the-badge&logoColor=white)
+![22K Hallmark](https://img.shields.io/badge/22K%20HALLMARK-D97706?style=for-the-badge&logoColor=white)
+![Smart POS](https://img.shields.io/badge/SMART%20JEWELLERY%20POS-B45309?style=for-the-badge&logoColor=white)
+
+<br>
+
 ⭐ **If you like this project, consider giving the repository a Star!**
 
 <br>
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=120&section=footer" width="100%" />
+<img src="public/gold-footer.svg" width="100%" alt="GoldFlow Wave Footer" />
 
 </div>
